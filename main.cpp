@@ -1,6 +1,6 @@
-#include <stdlib.h>
-#include <stdint.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <time.h>
 
 #ifdef __APPLE__
@@ -18,7 +18,7 @@ double Timer()
 
 SDL_Surface * screen = NULL;
 
-const int XRes = 640, YRes = 480;
+const int XRes = 1280, YRes = 720;
 
 void SetPixel(int X, int Y, Uint32 color) // screen must be locked
 {
@@ -305,8 +305,9 @@ float viewtheta = 0, viewphi = 0;
 
 void getDir(float * dirx, float * diry, float * dirz, int X, int Y)
 {
-    *dirx = (float)X / XRes * 2 - 1;
-    *diry = 1 - (float)Y / YRes * 2;
+    int minRes = XRes < YRes ? XRes : YRes;
+    *dirx = ((float)X - (float)XRes / 2.0f) / minRes;
+    *diry = -((float)Y - (float)YRes / 2.0f) / minRes;
     *dirz = 1;
     RotateX(dirx, diry, dirz, viewphi);
     RotateY(dirx, diry, dirz, viewtheta);
@@ -431,9 +432,13 @@ voxel_t * DrawPixel(int X, int Y)
     return pv;
 }
 
+static bool filled_blocks = false;
+
 void FillBlock(int minx, int maxx, int miny, int maxy, Uint32 color)
 {
 #if 1
+    if(!filled_blocks)
+        return;
     for(int y=miny;y<maxy;y++)
     {
         for(int x=minx;x<maxx;x++)
@@ -477,6 +482,13 @@ void DrawFrameBlock(int minx, int maxx, int miny, int maxy, voxel_t * lt, voxel_
 
 void DrawFrameRT()
 {
+    for(int y = 0; y < YRes; y++)
+    {
+        for(int x = 0; x < XRes; x++)
+        {
+            SetPixel(x, y, 0);
+        }
+    }
     DrawFrameBlock(0, XRes, 0, YRes, DrawPixel(0, 0), DrawPixel(XRes, 0), DrawPixel(0, YRes), DrawPixel(XRes, YRes));
 }
 
@@ -606,6 +618,10 @@ int main(int argc, char ** argv)
                     voxel_t * pv = getPointAt();
                     if(pv) *pv = emptyVoxel;
                 }
+                else if(event.key.keysym.sym == SDLK_f)
+                {
+                    filled_blocks = !filled_blocks;
+                }
                 break;
             }
             } // end switch
@@ -616,6 +632,7 @@ int main(int argc, char ** argv)
         if(curtime - 0.1 > starttime)
         {
             fps = frames / (curtime - starttime);
+            printf("fps: %f\n", fps);
             frames = 0;
             starttime = curtime;
         }
