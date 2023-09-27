@@ -482,6 +482,7 @@ void DrawFrameRT()
 
 const int ScanlineViewDist = 40;
 
+#if 0
 inline void DrawPlaneLine(int yi, float a, float b, float c, float d, float xa, float xb, float xc, float xd, float ya, float yb, float yc, float yd, float za, float zb, float zc, float zd)
 {
     if(d == 0)
@@ -545,6 +546,7 @@ void DrawFrameSL()
     for(int y=0;y<YRes;y++)
         DrawFrameLine(y);
 }
+#endif
 
 int main(int argc, char ** argv)
 {
