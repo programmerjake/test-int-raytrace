@@ -2,3 +2,5 @@
 /obj
 *.o
 /test-int-raytrace
+/.cache
+compile_commands.json
